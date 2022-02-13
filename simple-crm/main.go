@@ -6,6 +6,8 @@ import(
 	"github.com/FuaAlfu/golang-multi-projects/tree/master/simple-crm/database"
 	"github.com/FuaAlfu/golang-multi-projects/tree/master/simple-crm/lead"
 	"github.com/gofiber/fiber"
+	"github.com/jinzhu/gorm"
+	_"github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 func homePage(w http.ResponseWriter, r *http.Request){
@@ -44,8 +46,8 @@ func setupRoutes(app *fiber.App){
 	app.GET("/", homePage)
 	app.GET("/api/leads",lead.GetLeads)
 	app.GET("/api/leads/:id",lead.GetLead)
-	app.POST(lead.NewLead)
-	app.DELETE(lead.DeleteLead)
+	app.POST("/api/leads",lead.NewLead)
+	app.DELETE("/api/leads/:id"lead.DeleteLead)
 }
 
 func initDatabase(){

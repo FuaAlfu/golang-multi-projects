@@ -2,17 +2,23 @@ package main
 
 import(
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type(
 	MongoInstance struct{
-		Clint
-		DB
+		Clint  *mongo.Client
+		DB     *mongo.Database
 	}
 	Employee struct{
-		ID     string  `json: "id"`
+		ID     string  `json: "id, omitempty" bson:"_id,omitempty"`
 		Name   string  `json: "name"`
 		Salary float64 `json: "salary"`
 		Age    float64 `json: "age"`
@@ -27,7 +33,21 @@ const(
 )
 
 func connect()error{
+    client, err :=	mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	ctx, cancel := context.WithTimeout(context.Background(), 30* time.Second)
+	defer cancel()
 
+	err = client.Connect(ctx)
+	db := client.Database(dbName)
+	if err != nil{
+       return err
+	}
+	mg = MongoInstance{
+		Clint: client,
+		DB: db,
+	}
+
+	return nil
 }
 
 func homePage(w http.ResponseWriter, r *http.Request){
@@ -87,7 +107,9 @@ func setupRoutes(app *fiber.App){
 }
 
 func main() {
-	fmt.Println("start")
+	if err := Connect(); err != nil{
+		log.Fatal(err)
+	}
 	app := fiber.New()
 	setupRoutes(app)
 	app.Listen(3000)
